@@ -6,6 +6,7 @@
 
 /* common */
 html {
+    scroll-behavior: smooth;
     font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -13,18 +14,43 @@ html {
     color: #fff !important;
  }
 
- .text-content{
+ .text-center{
     text-align: center !important;
  }
 
+ .pull-right{
+    float: right;
+ }
+
+ .btn{
+    color: #fff;
+    background-color: #000;
+    text-decoration: none;
+    padding: 11px 16px;
+    display: inline-block;
+    margin-top: 15px;
+    border: none;
+}
+
+.btn:hover{
+    color: #000;
+    background-color: #757575;
+    cursor: pointer;
+}
 .row{
+    display: flex;
     margin-left: -8px;
     margin-right: -8px;
 }
 
+
 .col{
     padding-left: 8px;
     padding-right: 8px;
+}
+
+.col-full{
+    width: 100%;
 }
 
 .col-half{
@@ -33,6 +59,14 @@ html {
 
 .col-third{
     width: 33.33333%;
+}
+
+.mt-8{
+    margin-top: 8px !important;
+}
+
+.mt-16{
+    margin-top: 16px !important;
 }
 
  /* main */
@@ -151,7 +185,7 @@ html {
 
 #content .content-section{
     width: 800px;
-    padding: 64px 0px;
+    padding: 64px 0px 112px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -233,7 +267,6 @@ html {
 .places-list{
     display: flex;
     margin-top: 32px;
-    padding-bottom: 48px;
 }
 
 .place-img{
@@ -261,26 +294,63 @@ html {
     margin-top: 15px;
     line-height: 1.4;
 }
-.place-buy-btn{
-    color: #fff;
-    background-color: #000;
-    text-decoration: none;
-    padding: 11px 16px;
-    display: inline-block;
-    margin-top: 15px;
-}
 
-.place-buy-btn:hover{
-    color: #000;
-    background-color: #757575;
-}
 
 /* contact section */
+.contact-info{
+    font-size: 18px;
+    line-height: 1.5;
+}
 
+.contact-info i[class*= "ti-"]{
+    width: 30px;
+    display: inline-block;
+}
 
+.contact-form{
+    font-size: 15px;
+}
 
-#footer {}
+.contact-form .form-control{
+    padding: 10px;
+    border: 1px solic #ccc;
+    width: 100%;
+}
+/* Map section */
+.map-section img{
+    width: 100%;
+}
 
+/* footer */
+#footer {
+    padding: 64px 16px;
+    text-align: center;
+}
+
+#footer .social-list{
+    font-size: 24px;
+}
+
+#footer .social-list a{
+    color: rgba(0, 0, 0, 0.6);
+    text-decoration: none;
+}
+
+#footer .copyright a:hover,
+#footer .social-list a:hover{
+    color: rgba(0, 0, 0, 0.4);
+}
+
+#footer .copyright{
+    margin-top: 15px;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+#footer .copyright a{
+    color: rgba(0, 0, 0, 0.6);
+}
+
+/* modal */
 .modal{
     position: fixed;
     top: 0;

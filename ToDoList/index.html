@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
+        rel="stylesheet">
+    <title>Task</title>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="header-left">
+                <img class="logo-task" src="./assets/img/task.png" alt="task">
+                <div class="solugan">
+                    <span>Let's get shit done! </span>
+                    <img src="./assets/img/hi.png" alt="hi">
+                </div>
+            </div>
+            <div class="header-right">
+                <!-- <div class="logout">Logout <i class="fa-solid fa-right-from-bracket" style="margin-left: 5px;"></i>
+                </div> -->
+                <span class="new-task"><i class="fa-solid fa-plus" style="padding-right: 4px;"></i> New task</span>
+            </div>
+        </header>
+        <main>
+            <div class="task">
+                <div class="title">
+                    <span>Todo</span>
+                    <span class="count-task" id="countTodo"></span>
+                </div>
+                <div class="line"></div>
+                <div class="task-list" id="todo">
+
+                </div>
+            </div>
+            <div class="task">
+                <div class="title">
+                    <span>Doing</span>
+                    <span class="count-task" id="countDoing"></span>
+                </div>
+                <div class="line"></div>
+                <div class="task-list" id="doing">
+                </div>
+            </div>
+            <div class="task">
+                <div class="title">
+                    <span>Completed</span>
+                    <span class="count-task" id="countCompleted"></span>
+                </div>
+                <div class="line"></div>
+                <div class="task-list" id="completed">
+
+                </div>
+            </div>
+            <div class="task">
+                <div class="title">
+                    <span>Blocked</span>
+                    <span class="count-task" id="countBlocked"></span>
+                </div>
+                <div class="line"></div>
+                <div class="task-list" id="blocked">
+                </div>
+            </div>
+        </main>
+    </div>
+    <div class="box">
+        <div class="box-add">
+            <h3 id="box-title">Add new todo</h3>
+            <div class="close"><i class="fa-solid fa-xmark"></i></div>
+            <input id="category" type="text" placeholder="Category. Etc: Marketing..." class="input">
+            <input id="title" type="text" placeholder="Title" class="input">
+            <textarea id="content" placeholder="Content" rows="4"></textarea>
+            <div class="edit-status">
+                <div>
+                    <input type="radio" id="1" name="status" value="Todo">
+                    <label for="1">Todo</label>
+                </div>
+                <div>
+                    <input type="radio" id="2" name="status" value="Doing">
+                    <label for="2">Doing</label>
+                </div>
+                <div>
+                    <input type="radio" id="3" name="status" value="Completed">
+                    <label for="3">Completed</label>
+                </div>
+                <div>
+                    <input type="radio" id="4" name="status" value="Blocked">
+                    <label for="4">Blocked</label>
+                </div>
+            </div>
+            <button id="submit">Submit</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>

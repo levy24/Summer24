@@ -49,6 +49,13 @@ submit.addEventListener('click', () => {
         }
         refresh();
         closeBox();
+    }else {
+        showToast({
+            title: 'Error',
+            message: 'Please fill in all the required fields!',
+            type: 'error',
+            duration: 3000
+        });
     }
 })
 function checkSubmit() {
@@ -90,10 +97,13 @@ function formatDate(timestamp) {
     const options = {
         year: 'numeric',
         month: 'long',
-        day: 'numeric'
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
     };
     return date.toLocaleDateString('en-US', options);
 }
+
 const statusTask = {
     Todo: "Todo",
     Doing: "Doing",
@@ -108,6 +118,56 @@ function Task(idTask, category, title, content, datetime, taskStatus) {
     this.datetime = formatDate(datetime);
     this.taskStatus = taskStatus;
 }
+
+function showToast({
+    title = '',
+    message = '',
+    type = 'info',
+    duration = 3000
+}) {
+    const main = document.getElementById('toast');
+    const icons = {
+        success: 'fas fa-circle-check',
+        error: 'fas fa-triangle-exclamation',
+        update: 'fa-regular fa-pen-to-square',
+        cancel: 'fa-solid fa-ban'
+    }
+    const icon = icons[type];
+    const delay = (duration / 1000).toFixed(2);
+    if (main) {
+        const toast = document.createElement('div');
+
+        // auto remove
+        setTimeout(function () {
+            main.removeChild(toast);
+        }, duration + 1000);
+
+        // remove when clicked
+        toast.onclick = function (e) {
+            if (e.target.closest('.toast__close')) {
+                main.removeChild(toast);
+            }
+        };
+
+        toast.classList.add('toast', `toast--${type}`);
+        toast.style.animation = `slideInLeft ease .3s, fadeOut linear 1s ${delay}s forwards`;
+        toast.innerHTML = `
+            <div class="toast__icon">
+                <i class="${icon}"></i>
+            </div>
+    
+            <div class="toast__body">
+                <div class="toast__title">${title}</div>
+                <div class="toast__message">${message}</div>
+            </div>
+            <div class="toast__close">
+                <i class="fas fa-times"></i>
+            </div>
+        `;
+        main.appendChild(toast);
+    }
+}
+
 function addTodo() {
     const todoList = getListTasks();
     const category = document.getElementById('category').value;
@@ -116,7 +176,16 @@ function addTodo() {
     const task = new Task(todoList.length, category, title, content, Date.now(), statusTask.Todo);
     todoList.push(task);
     saveTask(todoList);
+
+    showToast({
+        title: 'Success',
+        message: 'Successfully created a new to-do item!',
+        type: 'success',
+        duration: 3000
+    });
 }
+
+
 var itemTemplate = (data) => {
     return `<div class="task-item" draggable="true">
     <span style="display: none;" id="idTask">${data.idTask}</span>
@@ -176,12 +245,93 @@ function refresh() {
     document.getElementById('countBlocked').textContent = countBlocked;
 }
 refresh();
-function deltask(id) {
-    let task = getListTasks();
-    task = task.filter((value) => value.idTask != id);
-    saveTask(task);
-    refresh();
+
+function createConfirmModal() {
+    const modal = document.createElement('div');
+    modal.id = 'confirm-modal';
+    modal.className = 'confirm-modal';
+
+    const modalContent = document.createElement('div');
+    modalContent.className = 'confirm-modal-content'; 
+
+    const message = document.createElement('p');
+    message.textContent = 'Are you sure you want to delete this item?';
+
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'confirm-button-container';
+
+    const okButton = document.createElement('button');
+    okButton.id = 'confirm-ok';
+    okButton.className = 'confirm-button confirm-button-ok';
+    okButton.textContent = 'OK';
+
+    const cancelButton = document.createElement('button');
+    cancelButton.id = 'confirm-cancel';
+    cancelButton.className = 'confirm-button confirm-button-cancel';
+    cancelButton.textContent = 'Cancel';
+
+    buttonContainer.appendChild(okButton);
+    buttonContainer.appendChild(cancelButton);
+
+    modalContent.appendChild(message);
+    modalContent.appendChild(buttonContainer);
+    modal.appendChild(modalContent);
+
+    document.body.appendChild(modal);
+
+    return {
+        modal,
+        okButton,
+        cancelButton
+    };
 }
+
+function showConfirmModal(callback) {
+    const { modal, okButton, cancelButton } = createConfirmModal();
+
+    modal.style.display = 'flex';
+
+    okButton.onclick = function() {
+        modal.style.display = 'none';
+        callback(true);
+        document.body.removeChild(modal);
+    };
+
+    cancelButton.onclick = function() {
+        modal.style.display = 'none';
+        callback(false);
+        document.body.removeChild(modal);
+    };
+}
+
+let taskIdToDelete = null;
+
+function deltask(id) {
+    taskIdToDelete = id;
+    showConfirmModal(function(confirmed) {
+        if (confirmed) {
+            let task = getListTasks();
+            task = task.filter((value) => value.idTask != taskIdToDelete);
+            saveTask(task);
+            refresh();
+
+            showToast({
+                title: 'Success',
+                message: 'Item has been successfully deleted!',
+                type: 'success',
+                duration: 3000
+            });
+        } else {
+            showToast({
+                title: 'Cancelled',
+                message: 'Deletion of the item was canceled.',
+                type: 'cancel',
+                duration: 3000
+            });
+        }
+    });
+}
+
 function displayEdit(id) {
     _id = id;
     document.getElementById('box-title').textContent = 'Edit to do';
@@ -210,6 +360,13 @@ function updateTask() {
     const idnex = tasks.findIndex(task => task.idTassk == _id);
     tasks[idnex] = task;
     saveTask(tasks);
+
+    showToast({
+        title: 'Update',
+        message: 'Successfully updated the to-do item!',
+        type: 'update',
+        duration: 3000
+    }); 
 }
 let selected = null;
 

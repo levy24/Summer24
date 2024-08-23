@@ -49,7 +49,7 @@ submit.addEventListener('click', () => {
         }
         refresh();
         closeBox();
-    }else {
+    } else {
         showToast({
             title: 'Error',
             message: 'Please fill in all the required fields!',
@@ -110,14 +110,18 @@ const statusTask = {
     Completed: "Completed",
     Blocked: "Blocked"
 };
-function Task(idTask, category, title, content, datetime, taskStatus) {
+function Task(idTask, category, title, content, datetime, taskStatus, reminderTime, lastReminderTime, reminderTriggered) {
     this.idTask = idTask;
     this.category = category;
     this.title = title;
     this.content = content;
     this.datetime = formatDate(datetime);
     this.taskStatus = taskStatus;
+    this.reminderTime = reminderTime; // Thời gian nhắc nhở ban đầu
+    this.lastReminderTime = lastReminderTime; // Thời gian nhắc nhở cuối cùng
+    this.reminderTriggered = reminderTriggered; // Đánh dấu nhắc nhở đã được kích hoạt
 }
+
 
 function showToast({
     title = '',
@@ -130,7 +134,8 @@ function showToast({
         success: 'fas fa-circle-check',
         error: 'fas fa-triangle-exclamation',
         update: 'fa-regular fa-pen-to-square',
-        cancel: 'fa-solid fa-ban'
+        cancel: 'fa-solid fa-ban',
+        reminder: 'fa-solid fa-bell'
     }
     const icon = icons[type];
     const delay = (duration / 1000).toFixed(2);
@@ -173,7 +178,8 @@ function addTodo() {
     const category = document.getElementById('category').value;
     const title = document.getElementById('title').value;
     const content = document.getElementById('content').value;
-    const task = new Task(todoList.length, category, title, content, Date.now(), statusTask.Todo);
+    const reminderTime = new Date(document.getElementById('reminder').value).getTime();
+    const task = new Task(todoList.length, category, title, content, Date.now(), statusTask.Todo, reminderTime, reminderTime, false);
     todoList.push(task);
     saveTask(todoList);
 
@@ -186,25 +192,28 @@ function addTodo() {
 }
 
 
+
 var itemTemplate = (data) => {
     return `<div class="task-item" draggable="true">
-    <span style="display: none;" id="idTask">${data.idTask}</span>
-    <div class="task-title">
-        <div>
-            <span class="task-category">${data.category}</span>
-            <h3>${data.title}</h3>
+        <span style="display: none;" id="idTask">${data.idTask}</span>
+        <div class="task-title">
+            <div>
+                <span class="task-category">${data.category}</span>
+                <h3>${data.title}</h3>
+            </div>
+            <div class="task-action">
+                <img src="./assets/img/update.png" alt="update" onclick=displayEdit(${data.idTask})>
+                <img src="./assets/img/delete.png" alt="delete" id="delete" onclick=deltask(${data.idTask})>
+            </div>
         </div>
-        <div class="task-action">
-            <img src="./assets/img/update.png" alt="update" onclick=displayEdit(${data.idTask})>
-            <img src="./assets/img/delete.png" alt="delete" id="delete" onclick=deltask(${data.idTask})>
+        <div class="task-des">
+            <p>${data.content}</p>
+            <span class="time"><img src="./assets/img/clock.png" alt="clock">${data.datetime}</span></br>
+            <span class="reminder-time"><img src="./assets/img/alarm.png" alt="alarm" width = "24" height = "24">${formatDate(data.reminderTime)}</span></br>
         </div>
-    </div>
-    <div class="task-des">
-        <p>${data.content}</p>
-        <span class="time"><img src="./assets/img/clock.png" alt="clock">${data.datetime}</span>
-    </div>
-</div>`
+    </div>`;
 }
+
 function refresh() {
     var txt_todo = "";
     let countTodo = 0;
@@ -252,7 +261,7 @@ function createConfirmModal() {
     modal.className = 'confirm-modal';
 
     const modalContent = document.createElement('div');
-    modalContent.className = 'confirm-modal-content'; 
+    modalContent.className = 'confirm-modal-content';
 
     const message = document.createElement('p');
     message.textContent = 'Are you sure you want to delete this item?';
@@ -291,13 +300,13 @@ function showConfirmModal(callback) {
 
     modal.style.display = 'flex';
 
-    okButton.onclick = function() {
+    okButton.onclick = function () {
         modal.style.display = 'none';
         callback(true);
         document.body.removeChild(modal);
     };
 
-    cancelButton.onclick = function() {
+    cancelButton.onclick = function () {
         modal.style.display = 'none';
         callback(false);
         document.body.removeChild(modal);
@@ -308,7 +317,7 @@ let taskIdToDelete = null;
 
 function deltask(id) {
     taskIdToDelete = id;
-    showConfirmModal(function(confirmed) {
+    showConfirmModal(function (confirmed) {
         if (confirmed) {
             let task = getListTasks();
             task = task.filter((value) => value.idTask != taskIdToDelete);
@@ -357,8 +366,12 @@ function updateTask() {
     task.title = document.getElementById('title').value;
     task.content = document.getElementById('content').value;
     task.taskStatus = document.querySelector('input[name=status]:checked').value;
-    const idnex = tasks.findIndex(task => task.idTassk == _id);
-    tasks[idnex] = task;
+    task.reminderTime = new Date(document.getElementById('reminder').value).getTime(); // Cập nhật thời gian nhắc nhở
+    task.lastReminderTime = task.reminderTime; // Cập nhật thời gian nhắc nhở cuối cùng
+    task.reminderTriggered = false; // Đánh dấu nhắc nhở chưa được kích hoạt
+
+    const index = tasks.findIndex(task => task.idTask == _id);
+    tasks[index] = task;
     saveTask(tasks);
 
     showToast({
@@ -366,8 +379,9 @@ function updateTask() {
         message: 'Successfully updated the to-do item!',
         type: 'update',
         duration: 3000
-    }); 
+    });
 }
+
 let selected = null;
 
 for (const item of items) {
@@ -429,3 +443,46 @@ function updateStatus(__idItem, __status) {
     saveTask(__tasks);
     window.location.reload();
 }
+
+function checkReminders() {
+    const now = Date.now();
+    const tasks = getListTasks();
+
+    tasks.forEach(task => {
+        // Chỉ kiểm tra các nhiệm vụ trong trạng thái "Todo"
+        if (task.taskStatus === statusTask.Todo) {
+            // Kiểm tra thời gian nhắc nhở
+            if (now >= new Date(task.reminderTime).getTime() && !task.reminderTriggered) {
+                showToast({
+                    title: 'Reminder',
+                    message: `Reminder for task: ${task.title}`,
+                    type: 'reminder',
+                    duration: 3000
+                });
+
+                task.reminderTriggered = true; // Đánh dấu nhắc nhở đã được kích hoạt
+                saveTask(tasks);
+            }
+
+            // Kiểm tra thời gian nhắc nhở lại
+            const lastReminderTime = new Date(task.lastReminderTime).getTime();
+            const reminderInterval = 5 * 60 * 1000; // 5 phút
+
+            if (task.reminderTriggered && (now - lastReminderTime >= reminderInterval)) {
+                showToast({
+                    title: 'Reminder',
+                    message: `Reminder for task: ${task.title}`,
+                    type: 'reminder',
+                    duration: 3000
+                });
+
+                // Cập nhật thời gian nhắc nhở cuối cùng
+                task.lastReminderTime = now;
+                saveTask(tasks);
+            }
+        }
+    });
+}
+
+
+setInterval(checkReminders, 60000);

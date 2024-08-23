@@ -301,6 +301,12 @@ main div:nth-child(4) .line {
     align-items: flex-end;
 }
 
+input[type="date"], input[type="time"] {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
 /* .logout{
     padding: 8px;
     background-color: #d46e29;
@@ -381,6 +387,14 @@ main div:nth-child(4) .line {
 }
 .toast--cancel .toast__icon{
     color: #f44336;
+}
+
+.toast--reminder .toast__icon{
+    color: #ffc001;
+}
+
+.toast--reminder{
+    color: #ffc001;
 }
 
 .toast__icon {
